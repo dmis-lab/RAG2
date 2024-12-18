@@ -6,7 +6,17 @@
 
 **Abstract**: Large language models (LLM) hold significant potential for applications in biomedicine, but they struggle with hallucinations and outdated knowledge. While retrieval-augmented generation (RAG) is generally employed to address these issues, it also has its own set of challenges: (1) LLMs are vulnerable to irrelevant or incorrect context, (2) medical queries are often not well-targeted for helpful information, and (3) retrievers are prone to bias toward the specific source corpus they were trained on. In this study, we present RAG² (RAtionale-Guided RAG), a new framework for enhancing the reliability of RAG in biomedical contexts. RAG² incorporates three key innovations: a small filtering model trained on perplexity-based labels of rationales, which selectively augments informative snippets of documents while filtering out distractors; LLM-generated rationales as queries to improve the utility of retrieved snippets; a structure designed to retrieve snippets evenly from a comprehensive set of four biomedical corpora, effectively mitigating retriever bias. Our experiments demonstrate that RAG² improves the state-of-the-art LLMs of varying sizes, with improvements of up to 6.1%, and it outperforms the previous best medical RAG model by up to 5.6% across three medical question-answering benchmarks.
 
-**Code** | Data and code will be available soon.
+**Repository Overview**
+
+This repository contains the implementation of **Rationale-Guided Retrieval-Augmented Generation (RAG²)**. It includes code for training the filtering model, setting up the retriever, and running inference. The repository is organized as follows:
+
+**Retriever Setup**
+
+The retriever is based on [Self-BioRAG](https://github.com/dmis-lab/self-biorag/tree/main/retriever). To set it up, Clone the Self-BioRAG repository and follow the setup instructions provided in the [Self-BioRAG retriever documentation](https://github.com/dmis-lab/self-biorag/tree/main/retriever).
+
+**Filtering Model Training**
+
+**Inference**
 
 ### Citation
 If you use this work, please cite our paper:
