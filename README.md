@@ -12,7 +12,7 @@ This repository contains the implementation of **Rationale-Guided Retrieval-Augm
 
 **Retriever Setup**
 
-The retriever is based on [Self-BioRAG](https://github.com/dmis-lab/self-biorag/tree/main/retriever). To set it up, Clone the Self-BioRAG repository and follow the setup instructions provided in the [Self-BioRAG retriever documentation](https://github.com/dmis-lab/self-biorag/tree/main/retriever).
+...
 
 **Filtering Model Training**
 The filtering model training code is based on [Adaptive-RAG](https://github.com/starsuzi/Adaptive-RAG).
