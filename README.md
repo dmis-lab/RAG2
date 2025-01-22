@@ -1,4 +1,4 @@
-# Rationale-Guided Retrieval Augmented Generation for Medical Question Answering
+[NAACL 2025] # Rationale-Guided Retrieval Augmented Generation for Medical Question Answering
 
 **Paper** | [Rationale-Guided Retrieval Augmented Generation for Medical Question Answering](https://arxiv.org/abs/2411.00300)
 
