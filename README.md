@@ -8,16 +8,9 @@
 
 **Repository Overview**
 
-This repository contains the implementation of **Rationale-Guided Retrieval-Augmented Generation (RAG²)**. It includes code for training the filtering model, setting up the retriever, and running inference. The repository is organized as follows:
+This repository contains the implementation of **Rationale-Guided Retrieval-Augmented Generation (RAG²)**. It includes code for training the filtering model, setting up the retriever, and running inference. 
 
-**Retriever Setup**
-
-...
-
-**Filtering Model Training**
-The filtering model training code is based on [Adaptive-RAG](https://github.com/starsuzi/Adaptive-RAG).
-
-**Inference**
+Detailed instructions for each component will be provided soon.
 
 ### Citation
 If you use this work, please cite our paper:
@@ -30,5 +23,3 @@ If you use this work, please cite our paper:
   year={2024}
 }
 ```
-
-Stay tuned for updates on data and code!
