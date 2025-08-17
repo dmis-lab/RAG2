@@ -8,36 +8,8 @@
 
 **Repository Overview**
 
-This repository contains the implementation of **Rationale-Guided Retrieval-Augmented Generation (RAG²)**. It includes code for training the filtering model, setting up the retriever, and running inference. The repository is organized as follows:
+This repository contains the implementation of **Rationale-Guided Retrieval-Augmented Generation (RAG²)**. It includes code for training the filtering model, setting up the retriever, and running inference. 
 
-## Getting Started
-
-### 1. Training Dataset Preparation
-- Generate Chain-of-Thought (CoT) rationales using LLMs
-- Calculate perplexity scores for each rationale
-- Create training labels based on perplexity thresholds
-- Process and format the training data
-
-### 2. Retriever Setup
-- Index setup for multiple biomedical corpora
-- Configuration for balanced retrieval across corpora
-- Embedding model initialization
-- Retrieval parameter settings
-
-### 3. Filtering Model Training
-The filtering model training code is based on [Adaptive-RAG](https://github.com/starsuzi/Adaptive-RAG).
-- Model architecture and configuration
-- Training with perplexity-based labels
-- Validation and model selection
-- Checkpoint saving
-
-### 4. Inference Pipeline
-- Initial CoT generation for query enhancement
-- Multi-corpus retrieval
-- Filtering retrieved passages
-- Final response generation
-
-## Usage
 Detailed instructions for each component will be provided soon.
 
 ### Citation
