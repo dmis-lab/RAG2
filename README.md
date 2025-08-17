@@ -1,6 +1,6 @@
 # [NAACL 2025] Rationale-Guided Retrieval Augmented Generation for Medical Question Answering
 
-**Paper** | [Rationale-Guided Retrieval Augmented Generation for Medical Question Answering](https://arxiv.org/abs/2411.00300)
+**Paper** | [Rationale-Guided Retrieval Augmented Generation for Medical Question Answering](https://aclanthology.org/2025.naacl-long.635/)
 
 **Authors**: Jiwoong Sohn*, Yein Park, Chanwoong Yoon, Sihyeon Park, Hyeon Hwang, Mujeen Sung, Hyunjae Kim†, Jaewoo Kang†
 
