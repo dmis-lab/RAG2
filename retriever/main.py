@@ -13,6 +13,12 @@ import retrieve as rt
 import rerank as rr
 
 
+def str2bool(value):
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in ("true", "1", "yes", "y")
+
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -34,17 +40,17 @@ def main():
     output_path = args.output_path
     corpus = args.corpus
     top_k = args.top_k
-    inst = args.instruction_preprocess
-    use_spacy = args.use_spacy
+    inst = str2bool(args.instruction_preprocess)
+    use_spacy = str2bool(args.use_spacy)
     pubmed_group_num = args.pubmed_group_num
 
-    if inst == True:
-        # query preprocess for instruction_set 
-        input_list = qe.query_preprocess_instruction(input_path, use_spacy = use_spacy)
+    if inst:
+        # query preprocess for instruction (training) set
+        input_list = qe.query_preprocess_instruction(input_path, use_spacy=use_spacy)
     else:
         with open(input_path, 'r') as input_file:
             input_list = json.load(input_file)
-        xq = qe.query_encode(input_list)
+    xq = qe.query_encode(input_list)
 
     # pubmed mips
     pubmed_I_array = []

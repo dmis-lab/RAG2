@@ -2,9 +2,9 @@ import torch
 from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-def combine_query_evidence(queries, list1, list2, list3, list4, list5):
+def combine_query_evidence(queries, list1, list2, list3, list4):
     evidences_5 = []
-    evidences_5 = [sublist1 + sublist2 + sublist3 + sublist4 + sublist5 for sublist1, sublist2, sublist3, sublist4, sublist5 in zip(list1, list2, list3, list4, list5)]
+    evidences_5 = [sublist1 + sublist2 + sublist3 + sublist4 for sublist1, sublist2, sublist3, sublist4 in zip(list1, list2, list3, list4)]
     q_5a_list = []
     for ith, q in tqdm(enumerate(queries)):
         q_5a = []

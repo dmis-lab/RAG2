@@ -90,15 +90,13 @@ except (LookupError, OSError):
         nltk.download("punkt", quiet=True)
 
 option_to_label = {
-    'A': 0,
-    'B': 1,
-    'C': 2,
+    '[HELPFUL]': 0,
+    '[NOT_HELPFUL]': 1,
 }
 
 label_to_option = {
-    0: 'A',
-    1: 'B',
-    2: 'C',
+    0: '[HELPFUL]',
+    1: '[NOT_HELPFUL]',
 }
 
 def parse_args():
@@ -706,9 +704,8 @@ def main():
                 probs = (
                     torch.nn.functional.softmax(
                         torch.stack([
-                            scores[:, tokenizer('A').input_ids[0]],
-                            scores[:, tokenizer('B').input_ids[0]],
-                            scores[:, tokenizer('C').input_ids[0]],
+                            scores[:, tokenizer.convert_tokens_to_ids('[HELPFUL]')],
+                            scores[:, tokenizer.convert_tokens_to_ids('[NOT_HELPFUL]')],
                         ]), dim=0,
                     ).detach().cpu().numpy()
                 )
