@@ -1,0 +1,110 @@
+# Defaults for the original RAG2 reproduction.
+#
+# Every value is tagged with its provenance:
+#   [S] specified by the paper or the released repository
+#   [A] not specified; a documented assumption (see docs/rag2_reproduction.md)
+#   [D] the paper and the released code disagree; see the doc for both readings
+#
+# Experiment configs inherit from this file with `base: default.yaml`.
+
+experiment:
+  name: rag2-baseline
+  seed: 42                      # [A] the release left --seed unset
+  output_dir: runs/{name}
+  notes: ""
+
+dataset:
+  loader: jsonl                 # medical dataset plugs in here
+  name: ""
+  version: ""                   # set this: it is recorded in the run manifest
+  path: ""
+  split: test
+  split_map: {}
+  limit: null
+  options: {}
+
+retrieval:
+  # [S] MedCPT checkpoints (paper 3.4; retriever/query_encode.py, rerank.py)
+  query_encoder: ncbi/MedCPT-Query-Encoder
+  article_encoder: ncbi/MedCPT-Article-Encoder
+  reranker: ncbi/MedCPT-Cross-Encoder
+  embedding_dim: 768            # [S] retriever/retrieve.py IndexFlatIP(768)
+  query_max_length: 512         # [S] retriever/query_encode.py
+  rerank_max_length: 512        # [S] retriever/rerank.py
+  candidates_per_corpus: 100    # [A] never stated; 100 is the release's --top_k default
+  final_top_k: 8                # [S] swept over {1,2,4,8,16,32}, selected on validation
+  rerank_query: initial         # [D] paper says initial query; retriever/main.py uses the rationale
+  shard_merge: score            # [D] "concat" reproduces the release's unbalanced PubMed sharding
+  shard_size: 0
+  use_scispacy_sep: false       # [S] off in the release (--use_spacy False)
+  scispacy_model: en_core_sci_scibert
+  encode_batch_size: 32
+  rerank_batch_size: 32
+  device: auto
+  corpora: []                   # [S] the paper uses four; see configs/corpora.example.yaml
+
+llm:
+  backend: huggingface
+  model: meta-llama/Meta-Llama-3-8B-Instruct   # [S] paper 4.2 footnote 2
+  revision: ""                  # pin this per run; recorded in the manifest
+  dtype: bfloat16
+  device: auto
+  max_new_tokens: 512           # [A] not stated
+  temperature: 0.0              # [S] appendix A.3: greedy, temperature 0
+  top_p: 1.0
+  max_input_tokens: 0
+  chat_template: true
+  batch_size: 8
+  options: {}
+
+filter:
+  kind: rag2_perplexity         # "passthrough" = the paper's "RAG2 w/o filter"
+  base_model: google/flan-t5-large   # [S] paper 4.2: Flan-T5-large, 770M
+  checkpoint: ""                # [U] the paper's checkpoint is not distributed; train one
+  max_seq_length: 512           # [S] run/run_large_train_xl_000.sh
+  doc_stride: 128               # [S] same
+  overflow: truncate            # [D] the release's stride path desynchronises eval
+  batch_size: 32
+  device: auto
+  on_empty: no_evidence         # [A] the paper is silent on "everything filtered out"
+  options: {}
+
+filter_training:
+  tau_percentile: 25.0          # [S] paper 3.2: top 25% of perplexity differentials
+  tau_scope: global             # [A] global vs. per-question is not stated
+  ppl_target: rationale         # [A] prose says rationale; Eq. 4 literally says query
+  ppl_rationale: no_retrieval   # [A] score one fixed string in both terms
+  label_top_k: 10               # [A] snippets per question sent through labeling
+  drop_undecided: true          # [S] Figure 2 has explicit [Discard] leaves
+  learning_rate: 3.0e-5         # [S] appendix A.3
+  num_train_epochs: 40          # [S] appendix A.3
+  per_device_train_batch_size: 16   # [S] appendix A.3
+  per_device_eval_batch_size: 16
+  gradient_accumulation_steps: 1    # [S] script default
+  weight_decay: 0.0             # [S] script default
+  lr_scheduler_type: linear     # [S] script default
+  num_warmup_steps: 0           # [S] script default
+  max_seq_length: 512           # [S]
+  doc_stride: 128               # [S]
+  max_answer_length: 30         # [S] script default
+  checkpointing_steps: epoch    # [S]
+  select_by: val_accuracy       # [A] "a few candidate models from the validation set"
+
+generation:
+  max_new_tokens: 512           # [A]
+  temperature: 0.0              # [S]
+  stop: []
+
+evaluation:
+  metric: accuracy              # [S] Table 2
+  extraction_patterns: []       # [A] empty = rag2.evaluation.DEFAULT_EXTRACTION_PATTERNS
+  unparsed_as_incorrect: true   # [A]
+  open_ended_metrics: []        # [S] appendix A.4.1 uses rouge_l + bertscore
+  bertscore_model: roberta-large  # [A] paper does not state the backbone
+
+cache:
+  dir: cache/candidates
+  enabled: true
+  allow_config_mismatch: false
+
+prompts: {}                     # empty = the constants in rag2/prompts.py

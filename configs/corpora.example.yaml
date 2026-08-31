@@ -1,0 +1,32 @@
+# The paper's four biomedical corpora (appendix Table A1), in the file layout
+# the released retriever expects (retriever/README.md).
+#
+# Neither the corpora nor their MedCPT embeddings are distributed -- they are
+# 564 GB and partly licence-restricted. Point the two directories at your own
+# copy. The medical corpus being prepared for the thesis plugs in the same way:
+# one entry per corpus, or a single entry if it is not multi-source.
+#
+# Invariant: embedding row i must correspond to article entry i, across the
+# concatenation of the listed files in order.
+
+base: default.yaml
+
+retrieval:
+  corpora:
+    - name: pubmed              # 36.5M docs / 69.7M passages / 400GB
+      loader: json_dir
+      articles_dir: retriever/articles/pubmed
+      embeddings_dir: retriever/embeddings/pubmed
+      # 38 shards; filenames default to the release layout when omitted
+    - name: pmc                 # 1.1M docs / 46.3M passages / 160GB
+      loader: json_dir
+      articles_dir: retriever/articles/pmc
+      embeddings_dir: retriever/embeddings/pmc
+    - name: cpg                 # clinical practice guidelines, 35.7k docs
+      loader: json_dir
+      articles_dir: retriever/articles/cpg
+      embeddings_dir: retriever/embeddings/cpg
+    - name: textbook            # 18 medical textbooks / 134.0k passages
+      loader: json_dir
+      articles_dir: retriever/articles/textbook
+      embeddings_dir: retriever/embeddings/textbook

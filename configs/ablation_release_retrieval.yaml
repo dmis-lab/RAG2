@@ -1,0 +1,16 @@
+# Reproduces the *released code's* retrieval behaviour rather than the paper's
+# text, so the two discrepancies of docs/rag2_reproduction.md 4.2 and 4.3 can be
+# measured instead of argued about.
+
+base: medqa_llama3.yaml
+
+experiment:
+  name: medqa-llama3-release-retrieval
+  notes: >
+    retriever/main.py reranks with the rationale (paper says the initial query)
+    and concatenates per-shard PubMed top-k (breaking balance). This config turns
+    both on.
+
+retrieval:
+  rerank_query: rationale
+  shard_merge: concat

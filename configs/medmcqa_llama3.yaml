@@ -1,0 +1,28 @@
+# MedMCQA with Llama-3-8B-Instruct.
+# Paper Table 2 target: 59.4 (no-RAG baseline 53.5). Figure 3: k = 16.
+#
+# [A] MedMCQA's official test split is unlabelled; the paper's 6,150 test items
+# match its validation split, so `test` maps to `dev` (docs 7.1).
+
+base: corpora.example.yaml
+
+experiment:
+  name: medmcqa-llama3
+  notes: "Reproduces Table 2 row 'Llama-3-8B-Instruct + RAG2', MedMCQA column."
+
+dataset:
+  loader: medmcqa
+  name: medmcqa
+  version: ""
+  path: data/medmcqa
+  split: test
+  split_map:
+    test: dev
+  options:
+    assert_size: true
+
+retrieval:
+  final_top_k: 16
+
+filter:
+  checkpoint: runs/filter-medmcqa-llama3/best

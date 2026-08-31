@@ -1,0 +1,39 @@
+# Dependencies for the RAG2 reproduction (the rag2/ package and scripts/).
+#
+# The original release's exact environment is preserved verbatim in
+# environment.yml (torch 2.1.0 / CUDA 12.1, transformers 4.36.2, faiss-gpu 1.7.2)
+# and is the reference for reproducing the paper. This file lists what the
+# reproduction package itself needs, split by what each part actually requires,
+# so the pipeline logic and its tests can be exercised without a GPU.
+
+# --- core: config, schema, caching, labeling, evaluation, tests -------------
+PyYAML>=6.0
+numpy>=1.24
+
+# --- models: rationale generation, filtering, MedCPT encoding/reranking -----
+# Pinned to the release's versions; newer ones generally work but change results.
+torch==2.1.0
+transformers==4.36.2
+datasets==2.15.0
+accelerate>=0.26
+sentencepiece==0.1.99
+
+# --- retrieval index --------------------------------------------------------
+# The release uses faiss-gpu 1.7.2 (IndexFlatIP). rag2.retrieval.index falls back
+# to an exact numpy brute-force search when faiss is absent, which is
+# mathematically identical but far slower -- use faiss for real experiments.
+faiss-gpu==1.7.2 ; platform_system == "Linux"
+
+# --- optional ---------------------------------------------------------------
+# vLLM: the paper's inference engine (appendix A.3). Generation only.
+# vllm
+# SciSpacy [SEP] insertion, off by default (retrieval.use_scispacy_sep):
+# scispacy==0.5.3
+# en-core-sci-scibert @ https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.3/en_core_sci_scibert-0.5.3.tar.gz
+# BERTScore for the open-ended ClinicalQA25 experiment (appendix A.4.1):
+# bert-score
+# GPT-4o rows:
+# openai
+
+# --- development ------------------------------------------------------------
+pytest>=7.0

@@ -60,10 +60,93 @@ GPU device indices (`cuda:7` in `retriever/query_encode.py`, device `2` in
 `retriever/rerank.py`) and dataset paths; adjust them to your environment. These
 are documented in the per-component READMEs.
 
+## Reproduction of the original system (`rag2/`)
+
+Alongside the authors' release, this repository contains a **reproduction of the
+original RAG² system** built for use as a thesis baseline. The two are kept
+separate on purpose:
+
+| | |
+| --- | --- |
+| `retriever/`, `classifier/` | the authors' released code, **unmodified** |
+| `rag2/`, `configs/`, `scripts/`, `tests/` | the reproduction |
+| `docs/rag2_reproduction.md` | what the paper specifies, what it leaves open, and every assumption made |
+| `docs/reproduction_results.md` | measured results and their discrepancies vs. the paper |
+
+Start with **[`docs/rag2_reproduction.md`](docs/rag2_reproduction.md)**. It records,
+component by component, what is explicitly specified `[S]`, what is ambiguous and
+which reading was adopted `[A]`, what is unavailable and whether it can be
+reconstructed `[U]`, and where the paper and the released code disagree `[D]` —
+including two discrepancies that change behaviour (which query the reranker
+cross-encodes, and whether PubMed shard concatenation breaks balanced retrieval),
+both exposed as config switches so they can be measured rather than argued about.
+
+### Running it
+
+```bash
+pip install -r requirements.txt
+
+# offline wiring check -- no GPU, no model downloads, ~2 seconds
+python scripts/smoke_test.py
+pytest
+
+# the four stages, over your own corpus and dataset
+python scripts/02_retrieve.py            -c configs/medqa_llama3.yaml   # 1-2: rationale, retrieve, rerank -> cache
+python scripts/03_build_filter_labels.py -c configs/medqa_llama3.yaml --candidates <train cache>
+python scripts/04_train_filter.py        -c configs/medqa_llama3.yaml --train-file <labels>
+python scripts/05_run_pipeline.py        -c configs/medqa_llama3.yaml --candidates <test cache>
+python scripts/06_evaluate.py --predictions runs/medqa-llama3/predictions.jsonl --paper llama3:medqa
+```
+
+Retrieval and reranking are cached (`rag2/cache.py`) and replayed by fingerprint,
+so the expensive stage runs once and every filter configuration provably sees the
+same candidate evidence. Every run writes a manifest with the resolved config,
+git commit, model revisions, seeds, prompt hashes and package versions.
+
+The filter sits behind one interface (`rag2.filtering.base.EvidenceFilter`); the
+original perplexity-trained Flan-T5 filter is `rag2/filtering/rag2_filter.py`.
+
+### Plugging in a dataset or corpus
+
+Neither the benchmarks nor the four biomedical corpora are redistributed. Point a
+config at your own copies:
+
+- **QA dataset** — `rag2/datasets/` has loaders for MedQA, MedMCQA and MMLU-Med,
+  plus a generic JSON/JSONL loader with a configurable field map for anything else.
+- **Evidence corpus** — `rag2/corpora/json_corpus.py` reads exactly the
+  articles/embeddings layout documented in [`retriever/README.md`](retriever/README.md),
+  so an index built for the released retriever drops straight in.
+
+Evidence provenance (document id, passage id, source, publication information) is
+preserved end to end as **metadata only**; no baseline component reads it, which
+`tests/test_metadata_isolation.py` enforces.
+
 ## Repository structure
 
 ```
 RAG2/
+├── docs/
+│   ├── rag2_reproduction.md   # Specification: what the paper fixes, and every assumption
+│   └── reproduction_results.md# Measured results and discrepancies vs. the paper
+├── rag2/                      # Reproduction package
+│   ├── config.py              # Typed config, loaded from configs/*.yaml
+│   ├── schema.py              # Question / Evidence / CandidateSet (+ provenance)
+│   ├── prompts.py             # Versioned prompt templates
+│   ├── datasets/              # QA dataset interface  <- medical dataset plugs in here
+│   ├── corpora/               # Evidence corpus interface
+│   ├── llm/                   # Backbone LLM backends (HF, vLLM, OpenAI, stub)
+│   ├── retrieval/             # MedCPT encoder, balanced FAISS MIPS, cross-encoder rerank
+│   ├── cache.py               # Candidate save / replay, fingerprint-verified
+│   ├── filtering/             # EvidenceFilter interface + the original RAG² filter
+│   ├── filter_training/       # ΔPPL, Figure-2 labeling, training-data export
+│   ├── generation.py          # Answer generation
+│   ├── evaluation.py          # Accuracy, filter metrics, ROUGE-L / BERTScore
+│   ├── experiment.py          # Run manifests and seeding
+│   └── pipeline.py            # Stage orchestration
+├── configs/                   # Experiment configuration (YAML, with inheritance)
+├── scripts/                   # One CLI per stage, plus the smoke test
+├── tests/                     # Unit tests + end-to-end smoke coverage
+├── requirements.txt           # Reproduction dependencies
 ├── environment.yml            # Single conda env (rag2) for both components
 ├── retriever/                 # Balanced multi-corpus retrieval + reranking
 │   ├── main.py                # Entry point: encode → MIPS over 4 corpora → rerank

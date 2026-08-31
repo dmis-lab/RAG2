@@ -1,0 +1,12 @@
+# "RAG2 w/o filter" -- the ablation curve in Figure 3.
+# Balanced retrieval + reranking + rationale queries, no filtering.
+
+base: medqa_llama3.yaml
+
+experiment:
+  name: medqa-llama3-nofilter
+  notes: "Figure 3 'RAG2 w/o filter' curve."
+
+filter:
+  kind: passthrough
+  checkpoint: ""

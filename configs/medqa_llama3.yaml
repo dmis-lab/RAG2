@@ -1,0 +1,27 @@
+# MedQA with Llama-3-8B-Instruct.
+# Paper Table 2 target: 64.6 (no-RAG baseline 57.7).
+# Figure 3 shows that number at k = 32.
+
+base: corpora.example.yaml
+
+experiment:
+  name: medqa-llama3
+  notes: "Reproduces Table 2 row 'Llama-3-8B-Instruct + RAG2', MedQA column."
+
+dataset:
+  loader: medqa
+  name: medqa
+  version: ""                   # set to your MedQA release/commit
+  path: data/medqa              # directory holding train/validation/test.json[l]
+  split: test
+  options:
+    assert_size: true           # checks against paper Table 1 (1273 test items)
+
+llm:
+  model: meta-llama/Meta-Llama-3-8B-Instruct
+
+retrieval:
+  final_top_k: 32               # [S] Figure 3: Llama-3-8B peaks at k=32 on MedQA
+
+filter:
+  checkpoint: runs/filter-medqa-llama3/best

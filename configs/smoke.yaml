@@ -1,0 +1,64 @@
+# Offline wiring check: runs every stage script with no model downloads and no GPU.
+#
+# The LLM, the query encoder and the reranker are all deterministic stubs, and
+# the data is the synthetic fixture from scripts/make_smoke_fixture.py. Accuracy
+# from this config is meaningless by construction -- it exists to prove the
+# stages connect, not to measure anything.
+#
+#   python scripts/make_smoke_fixture.py --out data/smoke
+#   python scripts/02_retrieve.py -c configs/smoke.yaml
+#   python scripts/05_run_pipeline.py -c configs/smoke.yaml --candidates <cache path>
+
+base: default.yaml
+
+experiment:
+  name: smoke
+  output_dir: runs/{name}
+  notes: "Synthetic wiring check. Not a benchmark."
+
+dataset:
+  loader: medqa
+  name: smoke
+  version: synthetic-v1
+  path: data/smoke
+  split: test
+
+llm:
+  backend: stub
+  model: stub
+  batch_size: 4
+
+retrieval:
+  query_encoder: stub          # HashQueryEncoder; no MedCPT download
+  reranker: none               # IdentityReranker; keeps the pooled order
+  embedding_dim: 768
+  candidates_per_corpus: 3
+  final_top_k: 12
+  corpora:
+    - name: pubmed
+      loader: json_dir
+      articles_dir: data/smoke/articles/pubmed
+      embeddings_dir: data/smoke/embeddings/pubmed
+      articles: [PubMed_Articles_0.json]
+      embeddings: [PubMed_Embeds_0.npy]
+    - name: pmc
+      loader: json_dir
+      articles_dir: data/smoke/articles/pmc
+      embeddings_dir: data/smoke/embeddings/pmc
+      articles: [PMC_Main_Articles.json]
+      embeddings: [PMC_Main_Embeds.npy]
+    - name: cpg
+      loader: json_dir
+      articles_dir: data/smoke/articles/cpg
+      embeddings_dir: data/smoke/embeddings/cpg
+    - name: textbook
+      loader: json_dir
+      articles_dir: data/smoke/articles/textbook
+      embeddings_dir: data/smoke/embeddings/textbook
+
+filter:
+  kind: passthrough            # no Flan-T5 checkpoint is available offline
+  checkpoint: ""
+
+filter_training:
+  label_top_k: 3

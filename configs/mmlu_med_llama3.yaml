@@ -1,0 +1,28 @@
+# MMLU-Med with Llama-3-8B-Instruct.
+# Paper Table 2 target: 74.8 (no-RAG baseline 69.5).
+#
+# MMLU-Med has no training split, so the paper evaluates it with the filter
+# trained on MedMCQA (section 4.2, Figure A1) -- hence the MedMCQA checkpoint
+# below. [U] The optimal k for MMLU-Med is not recoverable from the figures;
+# re-select it on validation rather than assuming this value.
+
+base: corpora.example.yaml
+
+experiment:
+  name: mmlu-med-llama3
+  notes: "Reproduces Table 2 row 'Llama-3-8B-Instruct + RAG2', MMLU-Med column."
+
+dataset:
+  loader: mmlu_med
+  name: mmlu_med
+  version: ""
+  path: data/mmlu_med
+  split: test
+  options:
+    assert_size: true
+
+retrieval:
+  final_top_k: 16               # [U] not published; re-select on validation
+
+filter:
+  checkpoint: runs/filter-medmcqa-llama3/best   # trained on MedMCQA, per 4.2

@@ -1,0 +1,17 @@
+# Reproduction outputs
+runs/
+cache/
+data/
+
+# Corpus artifacts supplied by the user (see retriever/README.md)
+retriever/embeddings/**/*.npy
+retriever/articles/**/*.json
+retriever/input/*.json
+retriever/output/*.json
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+.venv/

@@ -1,0 +1,35 @@
+# MedQA with Meerkat-7B.
+# Paper Table 2 target: 75.6 (no-RAG baseline 71.2).
+# Figure 3 shows that number at k = 2.
+#
+# [A] The paper cites Kim et al. (2024) without a checkpoint path. The described
+# model -- Mistral-7B initialised, GPT-4-rationale instruction-tuned, then
+# fine-tuned on MedQA and MedMCQA -- matches dmis-lab/meerkat-7b-v1.0. Confirm
+# against the Meerkat paper before the final run.
+
+base: corpora.example.yaml
+
+experiment:
+  name: medqa-meerkat
+  notes: "Reproduces Table 2 row 'Meerkat-7B + RAG2', MedQA column."
+
+dataset:
+  loader: medqa
+  name: medqa
+  version: ""
+  path: data/medqa
+  split: test
+  options:
+    assert_size: true
+
+llm:
+  model: dmis-lab/meerkat-7b-v1.0
+  # Meerkat is instruction-tuned at a 2K context (paper 5.1), which is why its
+  # accuracy falls off at large k where Llama's keeps rising.
+  max_input_tokens: 2048
+
+retrieval:
+  final_top_k: 2                # [S] Figure 3: Meerkat-7B peaks at k=2 on MedQA
+
+filter:
+  checkpoint: runs/filter-medqa-meerkat/best
