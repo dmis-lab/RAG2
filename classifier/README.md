@@ -14,7 +14,7 @@ of rationales, as described in the paper.
 - `run_classifier.py` — training / evaluation entry point.
 - `utils.py` — model loading, feature preprocessing, and accuracy metrics.
 - `model/token_add.ipynb` — adds the `[HELPFUL]` / `[NOT_HELPFUL]` tokens to a base model + tokenizer.
-- `data/` — training / evaluation data (see format below).
+- `data/` — five-example labeled sample (see availability and format below).
 - `run/` — example launch scripts.
 
 ## Setup
@@ -40,10 +40,24 @@ model.resize_token_embeddings(len(tokenizer))
 
 Point `--model_name_or_path` at the resulting directory when training.
 
+## Data availability
+
+Only a **five-example labeled sample** is included. The full labeled training and
+validation sets are not provided, and the original implementation for generating
+perplexity-based labels is no longer available. The original trained filter
+checkpoint is also unavailable.
+
+Prepare your own labeled splits using the schema below. The paper describes the
+labeling method, but the released code does not implement label generation or
+support exact reproduction of the original filter. The training and evaluation
+commands are templates: replace their paths with your own prepared data and model.
+The `data/custom/train.json` and `data/custom/validation.json` paths shown below
+are examples, not bundled files.
+
 ## Data format
 
-Each split is a JSON list of objects. A minimal example (see
-`data/medqa/llama3_cot/5%-train.json`):
+Each labeled split must be a JSON list of objects. The bundled
+`data/medqa/llama3_cot/5%-train.json` contains five format examples, including:
 
 ```json
 {
@@ -69,7 +83,7 @@ The column names are configurable via `--question_column` and `--answer_column`.
 cd classifier
 CUDA_VISIBLE_DEVICES=0 python run_classifier.py \
   --model_name_or_path model/updated_flan_t5_model \
-  --train_file data/medqa/llama3_cot/5%-train.json \
+  --train_file data/custom/train.json \
   --question_column question \
   --answer_column answer \
   --do_train \
@@ -80,7 +94,7 @@ CUDA_VISIBLE_DEVICES=0 python run_classifier.py \
   --doc_stride 128 \
   --per_device_train_batch_size 16 \
   --num_train_epochs 40 \
-  --output_dir outputs/medqa_llama3_5pct \
+  --output_dir outputs/custom_filter \
   --overwrite_cache
 ```
 
@@ -98,14 +112,14 @@ your local model and tokenizer prepared with the two label tokens; the model's
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python run_classifier.py \
-  --model_name_or_path outputs/medqa_llama3_5pct \
-  --validation_file data/medqa/llama3_cot/validation.json \
+  --model_name_or_path outputs/custom_filter \
+  --validation_file data/custom/validation.json \
   --question_column question \
   --answer_column answer \
   --do_eval \
   --val_column validation \
   --per_device_eval_batch_size 16 \
-  --output_dir outputs/medqa_llama3_5pct
+  --output_dir outputs/custom_filter
 ```
 
 Evaluation scores the two filter tokens directly: for each example it takes a softmax over the

@@ -25,11 +25,12 @@ The method runs in four stages; each stage's output is the next stage's input:
 
 ## What's included and what's not
 
-**This repository is not a full, one-command reproduction of the paper.** The
-biomedical corpora we used cannot be redistributed (size and licensing), and the
-exact filtering-model checkpoint is no longer available. What we release is the
-**code and representative artifacts**, so the method and data formats are fully
-specified and you can rerun the pipeline with your own corpora/model.
+**This repository is a partial research code release, not a complete reproduction
+of the paper.** The available code and sample illustrate the workflow and data
+format. Running the workflow requires your own corpora, embeddings, labeled data,
+and model. The original label-generation implementation and filtering-model
+checkpoint are no longer available; the full labeled training and validation
+sets are not included.
 
 **Included:**
 
@@ -37,10 +38,9 @@ specified and you can rerun the pipeline with your own corpora/model.
   multi-corpus MIPS, and cross-encoder reranking.
 - The filtering-model code (`classifier/`): training/evaluation of the Flan-T5
   filter, the `[HELPFUL]`/`[NOT_HELPFUL]` token setup, and metrics.
-- A **representative training-data artifact** in the exact schema we used:
-  [`classifier/data/medqa/llama3_cot/5%-train.json`](classifier/data/medqa/llama3_cot/5%-train.json),
-  a sample of the perplexity-labeled (question, evidence) pairs used to train the
-  filter.
+- A **five-example labeled sample** illustrating the filter's training-data schema:
+  [`classifier/data/medqa/llama3_cot/5%-train.json`](classifier/data/medqa/llama3_cot/5%-train.json).
+  This is a format example, not the full training split.
 
 **Not included (and why):**
 
@@ -51,9 +51,14 @@ specified and you can rerun the pipeline with your own corpora/model.
   (`retriever/articles/<corpus>/`); see [`retriever/README.md`](retriever/README.md)
   for the expected filenames. Retrieval and reranking use **MedCPT**
   (Jin et al., 2023).
+- **The original label-generation implementation and full labeled training and
+  validation sets.** The original code for generating perplexity-based labels is
+  no longer available. To train on new data, implement label generation based on
+  the paper or supply your own labels; this repository does not generate them.
 - **The exact trained filtering-model checkpoint** from the paper. It is not
-  available for distribution; use `classifier/` to train an equivalent filter on
-  your own labeled data.
+  available for distribution; use `classifier/` to train a filter on your own
+  labeled data. Exact reproduction of the original filter is not supported by
+  the released artifacts.
 
 **Known rough edges** (this is a research release): a few scripts hard-code
 GPU device indices (`cuda:7` in `retriever/query_encode.py`, device `2` in
@@ -77,7 +82,7 @@ RAG2/
 ├── classifier/                # Rationale-guided filtering model
 │   ├── run_classifier.py      # Train / evaluate the Flan-T5 filtering model
 │   ├── utils.py               # Model loading, preprocessing, metrics
-│   ├── data/                  # Training/eval data (see classifier/README.md)
+│   ├── data/                  # Five-example labeled sample (see classifier/README.md)
 │   ├── model/token_add.ipynb  # Add [HELPFUL] / [NOT_HELPFUL] special tokens
 │   └── run/                   # Example launch scripts
 ├── retriever/README.md        # Retriever setup & usage
@@ -86,10 +91,9 @@ RAG2/
 
 ## Installation
 
-> Before you start: this is **not** a full reproduction — the corpora used in the
-> paper are not redistributed due to size and licensing. See
-> [What's included and what's not](#whats-included-and-whats-not) above for
-> what you need to supply.
+> Before you start: this is a partial research release. You must supply your own
+> corpora, embeddings, labeled data, and model. See
+> [What's included and what's not](#whats-included-and-whats-not) above for details.
 
 The retriever and the classifier share a single `rag2` environment defined in [`environment.yml`](environment.yml). It covers everything both components need: `pytorch`, `faiss` (GPU), `transformers`, `datasets`, `nltk`, `numpy`, `accelerate` (for filter training), and `scispacy` + `en_core_sci_scibert` (optional, for `[SEP]` insertion).
 
@@ -100,7 +104,8 @@ conda activate rag2
 
 ## Quick start
 
-The full pipeline runs in four stages. Each stage produces a file consumed by the next.
+The following outlines the method's four stages. The commands are templates;
+provide the missing artifacts described above before running them.
 
 ### 1. Generate rationales (queries)
 
@@ -122,7 +127,10 @@ This encodes queries with MedCPT, runs balanced MIPS over the four corpora, and 
 
 ### 3. Filter evidence
 
-Train (or reuse) the Flan-T5 filtering model that labels each (question, snippet) pair as `[HELPFUL]` or `[NOT_HELPFUL]`, then keep only the helpful snippets. See **[`classifier/README.md`](classifier/README.md)**.
+Train a Flan-T5 filter using your own labeled data, or supply your own trained filter.
+It labels each (question, snippet) pair as `[HELPFUL]` or `[NOT_HELPFUL]`; keep only
+the helpful snippets. The original label-generation code and trained filter are
+not available. See **[`classifier/README.md`](classifier/README.md)**.
 
 ### 4. Generate the answer
 
