@@ -84,7 +84,11 @@ CUDA_VISIBLE_DEVICES=0 python run_classifier.py \
   --overwrite_cache
 ```
 
-`run/run_large_train_xl_000.sh` is a template for the command above.
+[`run/run_train_filter.sh`](run/run_train_filter.sh) is a template for the command above.
+
+The paper specifies **Flan-T5-large (~770M parameters)**. Set the script's `MODEL` to
+your local model and tokenizer prepared with the two label tokens; the model's
+`config.json` determines the size actually loaded.
 
 > **Note on paths:** the example script uses paths such as `classifier/model/data/...` and an
 > absolute `/classifier/...` `--model_name_or_path`. Adjust these to your working directory — the
