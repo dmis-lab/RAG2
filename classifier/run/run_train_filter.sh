@@ -1,6 +1,9 @@
 DATE=$(date +%Y_%m_%d)/$(date +%H_%M_%S)
 MODELNAME=flant5
 LLM=llama3
+# The paper specifies Flan-T5-large (~770M parameters).
+# Set MODEL to a local model and tokenizer prepared with [HELPFUL] and
+# [NOT_HELPFUL] tokens. The loaded model's size is determined by its config.json.
 MODEL=/classifier/model/updated_flan_t5_model
 DATASET_NAME=llama3_5%-train
 BENCHMARK=MEDQA
